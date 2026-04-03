@@ -1,0 +1,1086 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Fjalla One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+    overflow: hidden;
+}
+
+.app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+.side-menu {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background: #1a1a2e;
+    color: white;
+    transition: 0.3s;
+    z-index: 1000;
+    padding-top: 60px;
+}
+
+.side-menu.active {
+    left: 0;
+}
+
+.side-menu ul {
+    list-style: none;
+}
+
+.side-menu li {
+    padding: 15px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+}
+
+.side-menu li:hover {
+    background: #16213e;
+}
+
+.menu-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+    z-index: 1001;
+    background: rgba(0, 0, 0, 0.5);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(90deg, #1a1a2e, #16213e);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 900;
+}
+
+.screen {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    display: none;
+    overflow-y: auto;
+    background: #0f3460;
+}
+
+.screen.active {
+    display: block;
+}
+
+
+/* Contenedor principal de la trivia para que herede el fondo de .screen */
+.trivia-container {
+    padding: 20px;
+    color: #fff;
+    max-width: 800px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.trivia-main-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 5px;
+    color: #FFD700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid #4a6fa5;
+    padding-bottom: 10px;
+}
+
+.trivia-subtitle {
+    text-align: center;
+    color: #ccc;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+
+.team-selector {
+    background: #1a1a2e;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-left: 5px solid #4a6fa5;
+}
+
+.team-selector label {
+    display: block;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #FFD700;
+    font-weight: bold;
+}
+
+.team-dropdown {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 30px;
+    border: 2px solid #4a6fa5;
+    background: #16213e;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+    transition: border 0.3s;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+}
+
+.team-dropdown:hover {
+    border-color: #FFD700;
+}
+
+.team-dropdown option {
+    background: #16213e;
+    color: white;
+}
+
+/* Estilos para las tarjetas de preguntas */
+.trivia-content {
+    background: #1a1a2e;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.team-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 2px solid #4a6fa5;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.team-header h3 {
+    font-size: 1.8rem;
+    color: #FFD700;
+    margin: 0;
+}
+
+.question-card {
+    background: #16213e;
+    border-radius: 15px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-left: 5px solid #4a6fa5;
+    transition: transform 0.2s;
+}
+
+.question-card:hover {
+    transform: translateX(5px);
+    border-left-color: #FFD700;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 5px;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #0f3460;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid transparent;
+}
+
+.option-item:hover {
+    background: #1e4a7a;
+    border-color: #FFD700;
+}
+
+.option-item input[type="radio"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #4a6fa5;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    background: #16213e;
+}
+
+.option-item input[type="radio"]:checked {
+    background: #FFD700;
+    border-color: #FFD700;
+    box-shadow: 0 0 5px #FFD700;
+}
+
+.option-item input[type="radio"]:checked::after {
+    content: '⚽';
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    font-size: 12px;
+    color: black;
+}
+
+.option-label {
+    flex: 1;
+    cursor: pointer;
+    color: #ddd;
+}
+
+/* Feedback de respuesta */
+.feedback {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    animation: fadeIn 0.3s;
+}
+
+.feedback.correct {
+    background: #2e7d32;
+    border-left: 4px solid #a5d6a7;
+    color: #e8f5e8;
+}
+
+.feedback.incorrect {
+    background: #b71c1c;
+    border-left: 4px solid #ffcdd2;
+    color: #ffebee;
+}
+
+/* Botón de reinicio */
+.reset-button {
+    background: #4a6fa5;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+    transition: background 0.3s, transform 0.2s;
+    border: 2px solid transparent;
+}
+
+.reset-button:hover {
+    background: #5f8bc9;
+    transform: scale(1.02);
+    border-color: #FFD700;
+}
+
+/* ESTILOS PARA LAS ESTADÍSTICAS */
+
+.stats-container {
+    padding: 20px;
+    color: #fff;
+    max-width: 1000px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.stats-main-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 5px;
+    color: #FFD700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid #4a6fa5;
+    padding-bottom: 10px;
+}
+
+.stats-subtitle {
+    text-align: center;
+    color: #ccc;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.match-card {
+    background: #1a1a2e;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    border-top: 5px solid #4a6fa5;
+    transition: transform 0.2s;
+}
+
+.match-card:hover {
+    transform: translateY(-5px);
+    border-top-color: #FFD700;
+}
+
+.match-header {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+
+.match-teams {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.match-result {
+    font-size: 2.2rem;
+    color: #FFD700;
+    font-weight: bold;
+    margin-top: 5px;
+    text-shadow: 1px 1px 3px black;
+}
+
+.stat-row {
+    margin-bottom: 15px;
+}
+
+.stat-title {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-values {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.stat-bar-bg {
+    background: #0f3460;
+    height: 10px;
+    border-radius: 5px;
+    display: flex;
+    overflow: hidden;
+}
+
+.stat-bar-t1 {
+    background: #4CAF50;
+    /* Verde para el equipo 1 */
+    height: 100%;
+}
+
+.stat-bar-t2 {
+    background: #e63946;
+    /* Rojo para el equipo 2 */
+    height: 100%;
+}
+
+/* Estilos para la Galería de Videos */
+.videos-container {
+    padding: 20px;
+    color: white;
+    max-width: 900px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s;
+}
+
+.videos-main-title {
+    text-align: center;
+    color: #FFD700;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #4a6fa5;
+    padding-bottom: 10px;
+}
+
+.videos-subtitle {
+    text-align: center;
+    color: #ccc;
+    margin-bottom: 25px;
+    font-style: italic;
+}
+
+.videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.video-card {
+    background: #16213e;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+
+.video-card:hover {
+    border-color: #FFD700;
+    transform: scale(1.02);
+}
+
+.video-portada {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-bottom: 3px solid #4a6fa5;
+}
+
+.video-info {
+    padding: 15px;
+}
+
+.video-title {
+    font-size: 1.2rem;
+    color: #FFD700;
+    margin-bottom: 8px;
+}
+
+.video-desc {
+    font-size: 0.9rem;
+    color: #ddd;
+    line-height: 1.4;
+}
+
+/* Estilos para el Reproductor con Canvas */
+.reproductor-caja {
+    max-width: 700px !important;
+    width: 95% !important;
+    background: #1a1a2e;
+}
+
+#canvasProcesado {
+    width: 100%;
+    max-width: 640px;
+    background: #000;
+    border-radius: 10px;
+    border: 2px solid #4a6fa5;
+    margin: 0 auto;
+    display: block;
+}
+
+.controles-filtros {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.controles-filtros p {
+    color: #fff;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.btn-filtro {
+    background: #0f3460;
+    color: white;
+    border: 1px solid #FFD700;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin: 5px;
+}
+
+.btn-filtro.activo,
+.btn-filtro:hover {
+    background: #FFD700;
+    color: black;
+    font-weight: bold;
+}
+
+
+#home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn-blue {
+    background: #4a6fa5;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Cámara AR */
+#camera {
+    padding: 0;
+    overflow: hidden;
+    background: black;
+}
+
+.ar-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+a-scene {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+.ar-instructions {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    font-size: 16px;
+    z-index: 100;
+    pointer-events: none;
+    backdrop-filter: blur(5px);
+}
+
+.ar-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 200;
+}
+
+/* Estilos para el Álbum de la Galería */
+.album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.estampa {
+    background: #2a2a4a;
+    border-radius: 10px;
+    aspect-ratio: 3/4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    border: 2px solid #444;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Estilo para los escudos que aún NO escaneas */
+.estampa.bloqueada {
+    background: #111;
+    color: #555;
+    border-color: #222;
+}
+
+/* Estilo para los que ya se encontraron */
+.estampa.desbloqueada {
+    border-color: #FFD700;
+    background: linear-gradient(135deg, #1a1a2e, #4a6fa5);
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+    cursor: pointer;
+}
+
+.estampa.desbloqueada:hover {
+    transform: scale(1.05);
+}
+
+.estampa-icono {
+    font-size: 30px;
+    margin-bottom: 5px;
+}
+
+.estampa-nombre {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.start-ar-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 300;
+    text-align: center;
+    width: 80%;
+    max-width: 400px;
+}
+
+.start-ar-btn button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    animation: pulse 2s infinite;
+    width: 100%;
+    font-weight: bold;
+    border: 3px solid white;
+}
+
+/* Estilos de la Ventana EmergenteModal */
+.modal-oculto {
+    display: none;
+}
+
+.modal-activo {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.tarjeta-contenido {
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    position: relative;
+    color: #333;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+    border: 3px solid #FFD700;
+}
+
+.cerrar-btn {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+    background: #e63946;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid white;
+}
+
+.contenedor-logo-modal {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 15px auto;
+    background: white;
+    border-radius: 50%;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#tarjetaLogo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#tarjetaNombre {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 26px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tarjeta-historia-caja {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: justify;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* Ajustes para el modal del asistente */
+#modalAsistente .tarjeta-contenido {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 800px;
+    /* Aumentado de 500px a 800px */
+    width: 95%;
+    text-align: center;
+}
+
+#modalAsistente .tarjeta-imagen {
+    width: 100%;
+    max-height: 80vh;
+    /* La imagen ocupará hasta el 80% del alto de la pantalla */
+    height: auto;
+    object-fit: contain;
+    /* Mantiene la proporción de la imagen */
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Opcional: si quieres ocultar el título también */
+#modalAsistente .tarjeta-titulo {
+    display: none;
+    /* Comenta esta línea si quieres mantener el título */
+}
+
+/* Estilo para el botón */
+#modalAsistente .btn-blue {
+    background: #0066ff;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#modalAsistente .btn-blue:hover {
+    background: #0052cc;
+}
+
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+        background: #45a049;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.corner {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border: 3px solid white;
+    z-index: 50;
+    pointer-events: none;
+}
+
+.top-left {
+    top: 20px;
+    left: 20px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.top-right {
+    top: 20px;
+    right: 20px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.bottom-left {
+    bottom: 80px;
+    left: 20px;
+    border-right: none;
+    border-top: none;
+}
+
+.bottom-right {
+    bottom: 80px;
+    right: 20px;
+    border-left: none;
+    border-top: none;
+}
+
+.modal-oculto {
+    display: none !important;
+}
+
+.modal-activo {
+    display: flex !important;
+    /* o block, según tu diseño */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.119);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilos para la tarjeta del tutorial */
+.tarjeta-contenido {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.tarjeta-imagen {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    margin: 15px 0;
+}
+
+.btn-blue {
+    background: linear-gradient(135deg, #4a6fa5, #2a4d82);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #6b9fff;
+    box-shadow: 0 6px 15px rgba(74, 111, 165, 0.4),
+        inset 0 2px 5px rgba(255, 255, 255, 0.3);
+
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.btn-blue:hover {
+    background: linear-gradient(135deg, #5f8bc9, #3a62a3);
+    box-shadow: 0 0 25px rgba(107, 159, 255, 0.8),
+        inset 0 2px 5px rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px);
+}
+
+.btn-blue:active {
+    transform: scale(0.95) translateY(2px);
+    box-shadow: 0 2px 10px rgba(74, 111, 165, 0.3),
+        inset 0 4px 10px rgba(0, 0, 0, 0.4);
+    border-color: #4a6fa5;
+}
+
+/* =========================================
+   ESTILOS DEL PODIO DE ESTADÍSTICAS
+========================================= */
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Alinea los escalones por abajo */
+    gap: 15px;
+    margin: 30px auto;
+    height: 250px;
+    max-width: 600px;
+}
+
+.podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+    max-width: 130px;
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Para que el 1er lugar resalte más y esté por encima */
+.podium-item.first-place {
+    z-index: 2;
+    margin-bottom: 0; 
+}
+
+.podium-avatar {
+    font-size: 2rem;
+    background: #1a1a2e;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: 4px solid;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+}
+
+.podium-name {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    width: 100%;
+    /* Estas 3 líneas evitan que nombres largos rompan el podio */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    margin-bottom: 5px;
+}
+
+.podium-score {
+    font-size: 0.9rem;
+    color: #ccc;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Los bloques sólidos de los escalones */
+.podium-step {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 15px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.4); /* Número en marca de agua */
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    box-shadow: inset 0 8px 20px rgba(255,255,255,0.2), 
+                0 -5px 15px rgba(0,0,0,0.5); /* Efecto 3D de iluminación superior */
+}
+
+/* Alturas y colores metálicos para cada lugar */
+.step-first {
+    height: 140px;
+    background: linear-gradient(to bottom, #FFDF00, #D4AF37, #996515);
+    border: 1px solid #FFF380;
+    border-bottom: none;
+}
+
+.step-second {
+    height: 90px;
+    background: linear-gradient(to bottom, #E0E0E0, #A9A9A9, #696969);
+    border: 1px solid #FFFFFF;
+    border-bottom: none;
+}
+
+.step-third {
+    height: 60px;
+    background: linear-gradient(to bottom, #CD7F32, #A0522D, #8B4513);
+    border: 1px solid #E6A87C;
+    border-bottom: none;
+}
+
+.ar-effects-ui {
+    position: absolute;
+    right: 20px; /* Los empuja hacia el borde derecho de la pantalla */
+    top: 50%; /* Los coloca a la mitad de la altura de la pantalla */
+    transform: translateY(-50%); /* Hace que el centro de los botones quede exactamente a la mitad */
+    display: flex;
+    flex-direction: column; /* 👈 LA MAGIA: Apila los botones uno debajo del otro */
+    gap: 20px; /* Espacio entre cada botón */
+    z-index: 2000; 
+}
+.btn-efecto {
+    background: rgba(255, 255, 255, 0.2); /* Fondo semitransparente */
+    backdrop-filter: blur(5px); /* Efecto cristal */
+    border: 2px solid #FFD700;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s ease, background 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-efecto:active {
+    transform: scale(0.85); /* Se apachurra al tocarlo */
+    background: rgba(255, 215, 0, 0.5); /* Destello dorado */
+}

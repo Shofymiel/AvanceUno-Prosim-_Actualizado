@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Football AR</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- MindAR y A-Frame. Posdata: Funcionan con internet o datos... efe-->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Bpmf+Iansui&family=Fjalla+One&family=Gveret+Levin&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rock+Salt&display=swap');
+</style>
+
+    <script>
+        // Le enseñamos a A-Frame cómo cambiar texturas antes de que cargue la cámara
+        AFRAME.registerComponent('cambiar-ropa', {
+            schema: { src: { type: 'string' } },
+            init: function () {
+                this.el.addEventListener('model-loaded', () => {
+
+                    const obj = this.el.getObject3D('mesh');
+                    if (!obj) return;
+
+                    const textureLoader = new THREE.TextureLoader();
+                    textureLoader.load(this.data.src, (texture) => {
+                        texture.flipY = false; // Evita que la ropa quede de cabeza
+                        obj.traverse((node) => {
+                            if (node.isMesh && node.material) {
+                                // 👇 ESTA ES LA LÍNEA MÁGICA QUE FALTABA 👇
+                                node.material = node.material.clone();
+
+                                node.material.map = texture;
+                                node.material.needsUpdate = true;
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+
+</head>
+
+<body>
+
+    <div class="app">
+        <!-- Menú lateral -->
+        <div id="sideMenu" class="side-menu">
+            <ul>
+                <li onclick="showScreen('home')">🏠 Página Principal</li>
+                <li onclick="showScreen('camera')">📷 Cámara AR</li>
+                <li onclick="showScreen('gallery')">🖼️ Galería</li>
+                <li onclick="showScreen('videos')">🎥 Videos</li>
+                <li onclick="showScreen('stats')">📊 Estadísticas</li>
+                <li onclick="showScreen('trivia')">❓ Trivias</li>
+            </ul>
+        </div>
+
+        <div class="menu-btn" onclick="toggleMenu()">≡</div>
+        <div class="header-bar" id="headerTitle">Pixel Football AR</div>
+
+        <!-- Pantalla Principal -->
+        <section id="home" class="screen active">
+            <div class="btn-blue" onclick="reproducirClic(); lanzarChispas(event); showScreen('camera')">📷 ABRIR CÁMARA
+                AR</div>
+            <div class="btn-blue" onclick="reproducirClic(); lanzarChispas(event); showScreen('gallery')">🖼️ Galería
+            </div>
+
+            <button id="asistente" class="btn-blue"
+                onclick="reproducirClic(); lanzarChispas(event); activarAsistente()">
+                Activar el asistente
+            </button>
+        </section>
+
+        <!-- CÁMARA AR -->
+        <section id="camera" class="screen">
+            <div class="ar-container">
+
+                <a-scene id="arScene"
+                    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
+                    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights"
+                    vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
+
+                    <a-assets>
+                        <a-asset-item id="modelo3D" src="./modelo3D/Chibi_AR2.glb"></a-asset-item>
+                    </a-assets>
+
+                    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+                    <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+                    <a-light type="directional" color="#ffffff" intensity="1.5" position="1 1 1"></a-light>
+
+
+
+                </a-scene>
+
+                <!-- Mensaje de instrucciones (oculto inicialmente) -->
+                <div class="ar-instructions" id="arMessage" style="display: none;">
+                    🔍 Buscando imagen de Pixel Football...
+                </div>
+
+                <!-- BOTÓN GRANDE PARA INICIAR AR -->
+                <div class="start-ar-btn" id="startButtonContainer">
+                    <button onclick="startAR()">
+                        📷 INICIAR CÁMARA AR
+                    </button>
+                    <p style="color: white; margin-top: 20px; text-shadow: 2px 2px 4px black; font-size: 18px;">
+                        ⚽ Haz clic para activar la realidad aumentada
+                    </p>
+                </div>
+
+                <div class="ar-effects-ui" id="efectosAR" style="display: none;">
+                    <button class="btn-efecto" onclick="efectoConfeti()">🎉</button>
+                    <button class="btn-efecto" onclick="efectoFuegos()">🎆</button>
+                    <button class="btn-efecto" onclick="efectoBurbujas()">🫧</button>
+                </div>
+
+                <!-- Loading -->
+                <div class="ar-loading" id="arLoading" style="display: none;">
+                    <span style="font-size: 24px;">⚽</span><br>
+                    Iniciando cámara...
+                </div>
+
+                <!-- Esquinas decorativas -->
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+
+            </div>
+        </section>
+
+        <!-- Otras secciones (placeholder) -->
+
+        <section id="gallery" class="screen">
+            <div style="color: white; text-align: center; padding: 20px; padding-top: 40px;">
+                <h2>🏆 Álbum del Mundial 🏆</h2>
+                <p style="margin-top: 10px; font-size: 18px;">
+                    Colección: <span id="contadorAlbum" style="color: #FFD700; font-weight: bold;">0</span> / 43
+                </p>
+            </div>
+
+            <div class="album-grid" id="albumContenedor"></div>
+        </section>
+
+
+
+        <section id="videos" class="screen">
+            <div class="videos-container">
+                <h2 class="videos-main-title">🎥 VIDEOS DEL MUNDIAL</h2>
+                <p class="videos-subtitle">Da doble clic en un video para abrir el reproductor con filtros</p>
+
+                <div class="videos-grid" id="videosContenedor">
+                </div>
+            </div>
+        </section>
+
+        <div id="modalReproductor" class="modal-oculto">
+            <div class="tarjeta-contenido reproductor-caja">
+                <span class="cerrar-btn" onclick="cerrarReproductor()">×</span>
+                <h2 id="tituloReproductor" style="color: #FFD700; margin-bottom: 10px;">Reproductor</h2>
+
+                <video id="videoSecreto" style="display: none;" controls loop></video>
+
+                <canvas id="canvasProcesado" width="640" height="360"></canvas>
+
+                <div class="controles-filtros">
+                    <p>Aplicar Filtro de C#:</p>
+                    <button class="btn-filtro activo" onclick="cambiarFiltro('ninguno', this)">Normal</button>
+                    <button class="btn-filtro" onclick="cambiarFiltro('brillo', this)">Brillo (+64)</button>
+                    <button class="btn-filtro" onclick="cambiarFiltro('mosaico', this)">Mosaico (Pixelado)</button>
+                    <button class="btn-filtro" onclick="cambiarFiltro('aberracion', this)">Aberración Cromática</button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <section id="stats" class="screen">
+            <div class="stats-container">
+                <h2 class="stats-main-title">📊 ESTADÍSTICAS DESTACADAS</h2>
+                <p class="stats-subtitle">Revisa los números de los partidos más importantes</p>
+
+                <div class="matches-grid" id="matchesContainer">
+                </div>
+            </div>
+        </section>
+
+        <section id="trivia" class="screen">
+            <div class="trivia-container">
+                <h2 class="trivia-main-title">🇺🇸 TRIVIA MUNDIAL 2026 🇨🇦</h2>
+                <p class="trivia-subtitle">Pon a prueba tus conocimientos sobre los 42 equipos clasificados</p>
+
+                <!-- Selector de equipos -->
+                <div class="team-selector">
+                    <label for="teamSelect">Elige un equipo:</label>
+                    <select id="teamSelect" class="team-dropdown">
+                        <option value="">-- Selecciona un país --</option>
+                        <!-- Los equipos se cargarán aquí desde JavaScript -->
+                    </select>
+                </div>
+
+                <!-- Contenedor donde se mostrarán las preguntas del equipo seleccionado -->
+                <div id="triviaContent" class="trivia-content">
+                    <p style="text-align: center; color: #aaa; padding: 20px;">👆 Selecciona un equipo de la lista para
+                        comenzar.</p>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <div id="modalTarjeta" class="modal-oculto">
+        <div class="tarjeta-contenido" id="tarjetaFondo">
+            <span class="cerrar-btn" onclick="cerrarTarjeta()">x</span>
+
+            <div class="contenedor-logo-modal">
+                <img id="tarjetaLogo" src="" alt="Escudo del equipo">
+            </div>
+
+            <h2 id="tarjetaNombre">Nombre del Equipo</h2>
+
+            <div class="tarjeta-historia-caja">
+                <p id="tarjetaHistoria">Aquí va la historia del equipo...</p>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div id="modalAsistente" class="modal-oculto">
+        <div class="tarjeta-contenido">
+            <h2 class="tarjeta-titulo">Guía Rápida</h2>
+
+            <img id="imagenTutorial" src="" class="tarjeta-imagen">
+
+            <button id="btnSiguienteTutorial" class="btn-blue" onclick="avanzarTutorial()">Siguiente</button>
+        </div>
+    </div>
+
+    <script src="funcionalidad.js"></script>
+
+    <script src="trivia.js"></script>
+
+    <script src="videos.js"></script>
+
+    <script src="estadisticas.js"></script>
+
+    <script src="diccionario.js"></script>
+
+    <script src="efectos.js"></script>
+
+</body>
+
+</html>
