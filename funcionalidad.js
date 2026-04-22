@@ -484,12 +484,20 @@ window.addEventListener('load', function () {
 
         targets.forEach((target) => {
             target.addEventListener('targetFound', () => {
-                // 🌟 OPTIMIZACIÓN 2A: Encender SOLO el modelo que estamos viendo
+                
+                // 🌟 EL TRUCO MÁGICO: Apagamos TODOS los modelos a la fuerza primero
+                const todosLosModelos = document.querySelectorAll('a-gltf-model');
+                todosLosModelos.forEach(mod => {
+                    mod.setAttribute('visible', 'false');
+                });
+
+                // 🌟 Ahora sí, encendemos ÚNICAMENTE el modelo del escudo detectado
                 const modelo3D = target.querySelector('a-gltf-model');
                 if (modelo3D) {
                     modelo3D.setAttribute('visible', 'true');
                 }
 
+                // --- De aquí para abajo tu código sigue igualito ---
                 let indexDetectado = target.getAttribute('mindar-image-target').targetIndex;
                 let datosPais = (typeof selecciones !== 'undefined') ? selecciones[indexDetectado] : null;
                 let nombrePais = datosPais ? datosPais.pais : "Equipo Desconocido";
