@@ -436,221 +436,121 @@
         }
     };
 
-    // --- 2. Obtener referencias a elementos del DOM ---
-    const teamSelect = document.getElementById('teamSelect');
+    // --- 2. Elementos del DOM ---
     const triviaContent = document.getElementById('triviaContent');
+    const btnGenerarTrivia = document.getElementById('btnGenerarTrivia');
 
-    // Le pasamos los datos a la ventana global para que estadisticas.js pueda leerlos
-    if (typeof triviaData !== 'undefined') {
-        window.triviaData = triviaData;
-    }
+    let preguntasActuales = []; // Aquí guardaremos las 5 preguntas activas
 
-    // --- 7. SISTEMA DE ESTADÍSTICAS DE TRIVIA ---
-    window.triviaProgreso = {};
+    // --- 3. Lógica principal: Generar 5 preguntas al azar de distintos países ---
+    function generarDesafíoAleatorio() {
+        const todosLosPaises = Object.keys(triviaData);
+        
+        // Barajamos todos los países aleatoriamente
+        const paisesBarajados = todosLosPaises.sort(() => 0.5 - Math.random());
+        
+        // Tomamos solo los primeros 5 países
+        const cincoPaisesSeleccionados = paisesBarajados.slice(0, 5);
 
-    function inicializarProgreso() {
-        if (typeof triviaData === 'undefined') return;
-        Object.keys(triviaData).forEach(team => {
-            if (!window.triviaProgreso[team]) {
-                window.triviaProgreso[team] = {
-                    respondidas: 0,
-                    correctas: 0,
-                    incorrectas: 0,
-                    puntajeTotal: 0,
-                    preguntas: triviaData[team].questions.map((q, index) => ({
-                        index: index,
-                        respondida: false,
-                        correcta: null,
-                        respuestaSeleccionada: null
-                    }))
-                };
-            }
+        // Por cada país seleccionado, sacamos 1 pregunta al azar
+        preguntasActuales = cincoPaisesSeleccionados.map((pais, index) => {
+            const preguntasDelPais = triviaData[pais].questions;
+            const indiceAleatorio = Math.floor(Math.random() * preguntasDelPais.length);
+            const preguntaElegida = preguntasDelPais[indiceAleatorio];
+            
+            return {
+                id: index, // Del 0 al 4
+                pais: pais,
+                text: preguntaElegida.text,
+                options: preguntaElegida.options,
+                correct: preguntaElegida.correct
+            };
         });
+
+        // Dibujamos las preguntas en pantalla
+        renderizarPreguntas();
     }
 
-    // --- 3. Poblar el select con los nombres de los equipos ---
-    function populateTeamSelect() {
-        if (typeof triviaData === 'undefined') return;
-        const teamNames = Object.keys(triviaData).sort(); // Orden alfabético
-        teamSelect.innerHTML = '<option value="">-- Selecciona un país --</option>'; // Reset
-
-        teamNames.forEach(team => {
-            const option = document.createElement('option');
-            option.value = team;
-            option.textContent = team;
-            teamSelect.appendChild(option);
-        });
-    }
-
-    // --- 4. Función para renderizar las preguntas de un equipo ---
-    function renderTrivia(teamName) {
-        const team = triviaData[teamName];
-        if (!team) {
-            triviaContent.innerHTML = '<p style="text-align: center; color: #aaa; padding: 20px;">Equipo no encontrado.</p>';
-            return;
-        }
-
+    // --- 4. Renderizar el HTML de las preguntas ---
+    function renderizarPreguntas() {
         let html = `
-                <div class="team-header">
-                    <h3>⚽ ${teamName}</h3>
-                </div>
-                <div id="questionsContainer">
-            `;
+            <div id="questionsContainer">
+        `;
 
-        team.questions.forEach((q, index) => {
+        preguntasActuales.forEach((q, index) => {
             html += `
-                    <div class="question-card" id="q-${index}">
-                        <div class="question-text">${index + 1}. ${q.text}</div>
-                        <div class="options" data-qindex="${index}">
-                `;
+                <div class="question-card" id="q-${index}" style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                    <div style="font-size: 0.8em; color: #666; font-weight: bold; margin-bottom: 5px;">📍 Pregunta sobre: ${q.pais}</div>
+                    <div class="question-text" style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">${index + 1}. ${q.text}</div>
+                    <div class="options" data-qindex="${index}">
+            `;
+            
             q.options.forEach((opt, optIndex) => {
                 html += `
-                        <div class="option-item">
-                            <input type="radio" name="q${index}" id="q${index}opt${optIndex}" value="${optIndex}">
-                            <label class="option-label" for="q${index}opt${optIndex}">${String.fromCharCode(65 + optIndex)}. ${opt}</label>
-                        </div>
-                    `;
-            });
-            html += `
-                        </div>
-                        <div class="feedback" id="fb-${index}"></div>
+                    <div class="option-item" style="margin: 5px 0;">
+                        <input type="radio" name="q${index}" id="q${index}opt${optIndex}" value="${optIndex}">
+                        <label class="option-label" for="q${index}opt${optIndex}" style="cursor: pointer;">${String.fromCharCode(65 + optIndex)}. ${opt}</label>
                     </div>
                 `;
+            });
+
+            html += `
+                    </div>
+                    <div class="feedback" id="fb-${index}" style="margin-top: 10px; font-weight: bold;"></div>
+                </div>
+            `;
         });
 
-        html += `
-                </div>
-                <button class="reset-button" onclick="resetTeamQuestions('${teamName}')">🔄 Reiniciar Preguntas</button>
-            `;
-
+        html += `</div>`;
         triviaContent.innerHTML = html;
 
-        // --- 5. Añadir event listeners a los radio buttons ---
-        team.questions.forEach((q, index) => {
+        // Añadimos los escuchadores a los botones de opción (radio buttons)
+        preguntasActuales.forEach((q, index) => {
             const radioButtons = document.querySelectorAll(`input[name="q${index}"]`);
             radioButtons.forEach(radio => {
                 radio.addEventListener('change', function () {
-                    window.checkAnswer(teamName, index, parseInt(this.value));
+                    verificarRespuesta(index, parseInt(this.value));
                 });
             });
         });
     }
 
-    // --- 6. Función ÚNICA para verificar la respuesta ---
-    window.checkAnswer = function (teamName, questionIndex, selectedIndex) {
-        const team = triviaData[teamName];
-        if (!team) return;
+    // --- 5. Verificar respuesta (Desconectada de estadísticas) ---
+    function verificarRespuesta(indicePregunta, indiceSeleccionado) {
+        const pregunta = preguntasActuales[indicePregunta];
+        const esCorrecto = (indiceSeleccionado === pregunta.correct);
+        const feedbackDiv = document.getElementById(`fb-${indicePregunta}`);
+        const radios = document.querySelectorAll(`input[name="q${indicePregunta}"]`);
 
-        const question = team.questions[questionIndex];
-        const isCorrect = (selectedIndex === question.correct);
-        const feedbackDiv = document.getElementById(`fb-${questionIndex}`);
-
-        // Inicializar progreso si no existe
-        if (!window.triviaProgreso[teamName]) {
-            window.triviaProgreso[teamName] = {
-                respondidas: 0,
-                correctas: 0,
-                incorrectas: 0,
-                puntajeTotal: 0,
-                preguntas: []
-            };
-        }
-
-        const preguntaYaRespondida = window.triviaProgreso[teamName].preguntas[questionIndex]?.respondida || false;
-        const progreso = window.triviaProgreso[teamName];
-
-        if (!preguntaYaRespondida) {
-            progreso.respondidas++;
-            if (isCorrect) {
-                progreso.correctas++;
-                progreso.puntajeTotal += 10; // 10 puntos por respuesta correcta
-                
-                // Efecto opcional: Si tienes el archivo de efectos, podemos lanzar chispitas al acertar
-                if (typeof lanzarChispas === 'function') {
-                    // lanzarChispas(event); 
-                }
-            } else {
-                progreso.incorrectas++;
-            }
-        }
-
-        // Guardar detalle de la pregunta
-        progreso.preguntas[questionIndex] = {
-            index: questionIndex,
-            respondida: true,
-            correcta: isCorrect,
-            respuestaSeleccionada: selectedIndex,
-            respuestaCorrecta: question.correct,
-            texto: question.text,
-            opciones: question.options
-        };
-
-        // Deshabilitar todos los radios
-        const radios = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+        // Bloquear las opciones para que no se pueda cambiar la respuesta
         radios.forEach(radio => radio.disabled = true);
 
-        // Mostrar feedback
-        if (isCorrect) {
-            feedbackDiv.innerHTML = '✅ ¡Correcto! +10 puntos';
-            feedbackDiv.className = 'feedback correct';
+        // Mostrar texto de retroalimentación
+        if (esCorrecto) {
+            feedbackDiv.innerHTML = '✅ ¡Correcto!';
+            feedbackDiv.style.color = '#2e7d32';
         } else {
-            const correctAnswer = question.options[question.correct];
-            feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta correcta es: ${correctAnswer}`;
-            feedbackDiv.className = 'feedback incorrect';
+            const respuestaCorrectaTexto = pregunta.options[pregunta.correct];
+            feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta era: ${respuestaCorrectaTexto}`;
+            feedbackDiv.style.color = '#b71c1c';
         }
 
-        // Marcar visualmente
+        // Pintar colores de fondo
         radios.forEach((radio, idx) => {
-            if (idx === question.correct) {
-                radio.parentElement.style.background = '#2e7d32'; // Verde
-            } else if (idx === selectedIndex && !isCorrect) {
-                radio.parentElement.style.background = '#b71c1c'; // Rojo
+            if (idx === pregunta.correct) {
+                radio.parentElement.style.background = '#c8e6c9'; // Fondo verdecito
+                radio.parentElement.style.borderRadius = '5px';
+            } else if (idx === indiceSeleccionado && !esCorrecto) {
+                radio.parentElement.style.background = '#ffcdd2'; // Fondo rojito
+                radio.parentElement.style.borderRadius = '5px';
             }
         });
+    }
 
-        // Actualizar las estadísticas 
-        if (typeof window.actualizarEstadisticasTrivia === 'function') {
-            window.actualizarEstadisticasTrivia();
-        }
-    };
-
-    // Función ÚNICA para reiniciar
-    window.resetTeamQuestions = function (teamName) {
-        if (window.triviaProgreso[teamName]) {
-            window.triviaProgreso[teamName] = {
-                respondidas: 0,
-                correctas: 0,
-                incorrectas: 0,
-                puntajeTotal: 0,
-                preguntas: triviaData[teamName].questions.map((q, index) => ({
-                    index: index,
-                    respondida: false,
-                    correcta: null,
-                    respuestaSeleccionada: null
-                }))
-            };
-        }
-
-        renderTrivia(teamName); 
-
-        if (typeof window.actualizarEstadisticasTrivia === 'function') {
-            window.actualizarEstadisticasTrivia();
-        }
-    };
-
-    teamSelect.addEventListener('change', function () {
-        const selectedTeam = this.value;
-        if (selectedTeam) {
-            renderTrivia(selectedTeam);
-        } else {
-            triviaContent.innerHTML = '<p style="text-align: center; color: #aaa; padding: 20px;">👆 Selecciona un equipo de la lista para comenzar.</p>';
-        }
-    });
-
-    // Arrancamos el sistema
-    inicializarProgreso();
-    populateTeamSelect();
-
+    // --- 6. Conectar el botón ---
+    if (btnGenerarTrivia) {
+        btnGenerarTrivia.addEventListener('click', generarDesafíoAleatorio);
+    }
 
 })();
 
