@@ -93,3 +93,28 @@ function efectoBurbujas() {
         zIndex: 3000
     });
 }
+
+let animacionEnPlay = true;
+
+function toggleAnimacion() {
+    // Buscamos todos los modelos 3D que tengan animaciones
+    const chibis = document.querySelectorAll('a-gltf-model');
+    const boton = document.getElementById('btn-animacion');
+    
+    animacionEnPlay = !animacionEnPlay;
+
+    chibis.forEach(chibi => {
+        if (animacionEnPlay) {
+            // Reanudar: Velocidad normal
+            chibi.setAttribute('animation-mixer', 'timeScale: 1');
+            boton.innerHTML = '⏸️'; // Cambia el icono a pausa
+        } else {
+            // Pausar: Velocidad cero (se congela)
+            chibi.setAttribute('animation-mixer', 'timeScale: 0');
+            boton.innerHTML = '▶️'; // Cambia el icono a play
+        }
+    });
+    
+    // Opcional: Sonido de clic si ya tienes la función configurada
+    if (typeof reproducirClic === "function") reproducirClic();
+}
