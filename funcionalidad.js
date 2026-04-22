@@ -438,6 +438,9 @@ function restartAR() {
     setTimeout(() => { startAR(); }, 1000);
 }
 
+// VARIABLE GLOBAL para el temporizador (Esto evita que el celular se congele)
+let temporizadorGaleria = null;
+
 // EVENTOS DE LA CÁMARA
 window.addEventListener('load', function () {
     console.log("🚀 App iniciada");
@@ -445,19 +448,18 @@ window.addEventListener('load', function () {
 
     if (scene) {
 
-
         for (let i = 0; i <= 48; i++) {
             let datosPais = (typeof selecciones !== 'undefined' && selecciones[i]) ? selecciones[i] : null;
             let nombrePais = datosPais ? datosPais.pais.toUpperCase() : "EQUIPO " + i;
             let colorTexto = datosPais ? datosPais.colorPrincipal : "#FFFFFF";
 
+            // 1. ELIMINAMOS el visible="false". Dejamos que MindAR haga su magia natural.
             let targetHTML = `
     <a-entity mindar-image-target="targetIndex: ${i}">
        <a-text value="${nombrePais} DETECTADO" color="${colorTexto}" position="0 1 0" align="center" scale="1.5 1.5 1.5"></a-text>
         
         <a-gltf-model 
             src="#modelo3D"
-            visible="false"  
             position="0 0 0" 
             scale="5 5 5" 
             animation-mixer="clip: Hi_Clip;"
@@ -465,10 +467,8 @@ window.addEventListener('load', function () {
         </a-gltf-model>
     </a-entity>
     `;
-            // ponemos el bloque dentro de la escena
             scene.insertAdjacentHTML('beforeend', targetHTML);
         }
-
 
         scene.addEventListener('mindar-image-ready', () => {
             console.log("✅ MindAR: El archivo .mind se cargó correctamente y el escáner está activo.");
@@ -479,11 +479,17 @@ window.addEventListener('load', function () {
             }
         });
 
-        // Ahora buscamos todos los targets
         const targets = document.querySelectorAll('[mindar-image-target]');
 
         targets.forEach((target) => {
             target.addEventListener('targetFound', () => {
+                
+                // 2. MAGIA ANTI-AMONTONAMIENTO: Si MindAR se confunde, nosotros forzamos 
+                // a que se oculten todos los demás escudos de la pantalla, dejando solo este.
+                targets.forEach(t => {
+                    if (t !== target) t.setAttribute('visible', 'false');
+                });
+
                 let indexDetectado = target.getAttribute('mindar-image-target').targetIndex;
                 let datosPais = (typeof selecciones !== 'undefined') ? selecciones[indexDetectado] : null;
                 let nombrePais = datosPais ? datosPais.pais : "Equipo Desconocido";
@@ -503,13 +509,22 @@ window.addEventListener('load', function () {
                     message.style.fontWeight = 'bold';
                 }
 
-                setTimeout(() => {
+                // 3. ANTI-TRABAS: Destruimos cualquier cuenta regresiva anterior
+                if (temporizadorGaleria) clearTimeout(temporizadorGaleria);
+                
+                // Iniciamos una nueva cuenta limpia de 10 segundos
+                temporizadorGaleria = setTimeout(() => {
                     showScreen('gallery');
                 }, 10000);
             });
 
             target.addEventListener('targetLost', () => {
                 console.log("👀 Se perdió de vista la imagen.");
+                
+                // 4. CANCELAMOS EL VIAJE: Si quitas el celular del escudo antes de los 10 seg,
+                // cancelamos el salto a la galería para que no se vuelva loco en el fondo.
+                if (temporizadorGaleria) clearTimeout(temporizadorGaleria);
+
                 const message = document.getElementById('arMessage');
                 if (message) {
                     message.innerHTML = '🔍 Buscando escudo del Mundial...';
