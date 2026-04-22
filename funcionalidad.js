@@ -84,9 +84,24 @@ function startAR() {
 }
 
 // Función para detener AR
+// 🌟 Agrega esta variable hasta arriba de tu archivo (junto a let arStarted = false;)
+let timeoutGaleria = null; 
+
+// 🌟 Reemplaza TODA tu función stopAR() por esta versión limpia:
 function stopAR() {
     if (!arStarted) return;
     const scene = document.querySelector('a-scene');
+    
+    // EXORCISMO 1: Matamos el temporizador para que no sature el celular
+    if (timeoutGaleria) {
+        clearTimeout(timeoutGaleria);
+        timeoutGaleria = null;
+    }
+
+    // EXORCISMO 2: Forzamos a que todos los modelos y sus contenedores se apaguen a la mala
+    document.querySelectorAll('a-gltf-model').forEach(mod => mod.setAttribute('visible', 'false'));
+    document.querySelectorAll('[mindar-image-target]').forEach(target => target.setAttribute('visible', 'false'));
+
     if (scene) {
         try {
             const arSystem = scene.systems["mindar-image-system"];
@@ -101,7 +116,7 @@ function stopAR() {
 
             arStarted = false;
             document.getElementById('efectosAR').style.display = 'none';
-            console.log("⏸️ AR y cámara detenidos por completo");
+            console.log("⏸️ AR detenido. Chibis y temporizadores limpiados de la memoria.");
 
             const startBtnContainer = document.getElementById('startButtonContainer');
             if (startBtnContainer) startBtnContainer.style.display = 'block';
@@ -483,21 +498,18 @@ window.addEventListener('load', function () {
         const targets = document.querySelectorAll('[mindar-image-target]');
 
         targets.forEach((target) => {
+            // Busca el target.addEventListener('targetFound'...) y déjalo exactamente así:
             target.addEventListener('targetFound', () => {
                 
-                // 🌟 EL TRUCO MÁGICO: Apagamos TODOS los modelos a la fuerza primero
-                const todosLosModelos = document.querySelectorAll('a-gltf-model');
-                todosLosModelos.forEach(mod => {
-                    mod.setAttribute('visible', 'false');
-                });
-
-                // 🌟 Ahora sí, encendemos ÚNICAMENTE el modelo del escudo detectado
+                // Limpiaparabrisas: Apagamos TODOS los modelos primero
+                document.querySelectorAll('a-gltf-model').forEach(mod => mod.setAttribute('visible', 'false'));
+                
+                // Encendemos SOLO el modelo del escudo que acabamos de detectar
                 const modelo3D = target.querySelector('a-gltf-model');
                 if (modelo3D) {
                     modelo3D.setAttribute('visible', 'true');
                 }
 
-                // --- De aquí para abajo tu código sigue igualito ---
                 let indexDetectado = target.getAttribute('mindar-image-target').targetIndex;
                 let datosPais = (typeof selecciones !== 'undefined') ? selecciones[indexDetectado] : null;
                 let nombrePais = datosPais ? datosPais.pais : "Equipo Desconocido";
@@ -516,7 +528,11 @@ window.addEventListener('load', function () {
                     arMessageDOM.style.fontWeight = 'bold';
                 }
 
-                setTimeout(() => {
+                // EXORCISMO 3: Reiniciamos el reloj para no acumular redirecciones fantasma
+                if (timeoutGaleria) {
+                    clearTimeout(timeoutGaleria);
+                }
+                timeoutGaleria = setTimeout(() => {
                     showScreen('gallery');
                 }, 10000);
             });
