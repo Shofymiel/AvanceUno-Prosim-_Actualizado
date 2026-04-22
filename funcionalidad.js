@@ -443,20 +443,25 @@ window.addEventListener('load', function () {
     console.log("🚀 App iniciada");
     const scene = document.querySelector('a-scene');
 
-    if (scene) {
+    // 🌟 OPTIMIZACIÓN 1: Caché del DOM. Buscamos el elemento de mensaje UNA sola vez
+    // y lo guardamos en la memoria para no gastar recursos buscándolo a cada rato.
+    const arMessageDOM = document.getElementById('arMessage');
 
+    if (scene) {
 
         for (let i = 0; i <= 48; i++) {
             let datosPais = (typeof selecciones !== 'undefined' && selecciones[i]) ? selecciones[i] : null;
             let nombrePais = datosPais ? datosPais.pais.toUpperCase() : "EQUIPO " + i;
             let colorTexto = datosPais ? datosPais.colorPrincipal : "#FFFFFF";
 
+            // Aquí el modelo nace con visible="false" para ahorrar RAM (¡Bien hecho!)
             let targetHTML = `
     <a-entity mindar-image-target="targetIndex: ${i}">
        <a-text value="${nombrePais} DETECTADO" color="${colorTexto}" position="0 1 0" align="center" scale="1.5 1.5 1.5"></a-text>
         
         <a-gltf-model 
-            src="#modelo3D" 
+            src="#modelo3D"
+            visible="false"  
             position="0 0 0" 
             scale="5 5 5" 
             animation-mixer="clip: Hi_Clip;"
@@ -464,25 +469,27 @@ window.addEventListener('load', function () {
         </a-gltf-model>
     </a-entity>
     `;
-            // ponemos el bloque dentro de la escena
             scene.insertAdjacentHTML('beforeend', targetHTML);
         }
 
-
         scene.addEventListener('mindar-image-ready', () => {
             console.log("✅ MindAR: El archivo .mind se cargó correctamente y el escáner está activo.");
-            const message = document.getElementById('arMessage');
-            if (message && arStarted) {
-                message.innerHTML = '✅ Cámara lista - Apunta a un escudo del Mundial';
-                message.style.background = 'rgba(0,0,0,0.7)';
+            if (arMessageDOM && arStarted) {
+                arMessageDOM.innerHTML = '✅ Cámara lista - Apunta a un escudo del Mundial';
+                arMessageDOM.style.background = 'rgba(0,0,0,0.7)';
             }
         });
 
-        // Ahora buscamos todos los targets
         const targets = document.querySelectorAll('[mindar-image-target]');
 
         targets.forEach((target) => {
             target.addEventListener('targetFound', () => {
+                // 🌟 OPTIMIZACIÓN 2A: Encender SOLO el modelo que estamos viendo
+                const modelo3D = target.querySelector('a-gltf-model');
+                if (modelo3D) {
+                    modelo3D.setAttribute('visible', 'true');
+                }
+
                 let indexDetectado = target.getAttribute('mindar-image-target').targetIndex;
                 let datosPais = (typeof selecciones !== 'undefined') ? selecciones[indexDetectado] : null;
                 let nombrePais = datosPais ? datosPais.pais : "Equipo Desconocido";
@@ -495,11 +502,10 @@ window.addEventListener('load', function () {
                     localStorage.setItem('albumMundial', JSON.stringify(escudosGuardados));
                 }
 
-                const message = document.getElementById('arMessage');
-                if (message) {
-                    message.innerHTML = '⚽ ¡' + nombrePais.toUpperCase() + ' DESBLOQUEADO! Guardando...';
-                    message.style.background = '#4CAF50';
-                    message.style.fontWeight = 'bold';
+                if (arMessageDOM) {
+                    arMessageDOM.innerHTML = '⚽ ¡' + nombrePais.toUpperCase() + ' DESBLOQUEADO! Guardando...';
+                    arMessageDOM.style.background = '#4CAF50';
+                    arMessageDOM.style.fontWeight = 'bold';
                 }
 
                 setTimeout(() => {
@@ -508,12 +514,17 @@ window.addEventListener('load', function () {
             });
 
             target.addEventListener('targetLost', () => {
+                // 🌟 OPTIMIZACIÓN 2B: Apagar el modelo para que la tarjeta gráfica (GPU) descanse
+                const modelo3D = target.querySelector('a-gltf-model');
+                if (modelo3D) {
+                    modelo3D.setAttribute('visible', 'false');
+                }
+
                 console.log("👀 Se perdió de vista la imagen.");
-                const message = document.getElementById('arMessage');
-                if (message) {
-                    message.innerHTML = '🔍 Buscando escudo del Mundial...';
-                    message.style.background = 'rgba(0,0,0,0.7)';
-                    message.style.fontWeight = 'normal';
+                if (arMessageDOM) {
+                    arMessageDOM.innerHTML = '🔍 Buscando escudo del Mundial...';
+                    arMessageDOM.style.background = 'rgba(0,0,0,0.7)';
+                    arMessageDOM.style.fontWeight = 'normal';
                 }
             });
         });
