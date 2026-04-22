@@ -84,24 +84,9 @@ function startAR() {
 }
 
 // Función para detener AR
-// 🌟 Agrega esta variable hasta arriba de tu archivo (junto a let arStarted = false;)
-let timeoutGaleria = null; 
-
-// 🌟 Reemplaza TODA tu función stopAR() por esta versión limpia:
 function stopAR() {
     if (!arStarted) return;
     const scene = document.querySelector('a-scene');
-    
-    // EXORCISMO 1: Matamos el temporizador para que no sature el celular
-    if (timeoutGaleria) {
-        clearTimeout(timeoutGaleria);
-        timeoutGaleria = null;
-    }
-
-    // EXORCISMO 2: Forzamos a que todos los modelos y sus contenedores se apaguen a la mala
-    document.querySelectorAll('a-gltf-model').forEach(mod => mod.setAttribute('visible', 'false'));
-    document.querySelectorAll('[mindar-image-target]').forEach(target => target.setAttribute('visible', 'false'));
-
     if (scene) {
         try {
             const arSystem = scene.systems["mindar-image-system"];
@@ -116,7 +101,7 @@ function stopAR() {
 
             arStarted = false;
             document.getElementById('efectosAR').style.display = 'none';
-            console.log("⏸️ AR detenido. Chibis y temporizadores limpiados de la memoria.");
+            console.log("⏸️ AR y cámara detenidos por completo");
 
             const startBtnContainer = document.getElementById('startButtonContainer');
             if (startBtnContainer) startBtnContainer.style.display = 'block';
@@ -458,18 +443,14 @@ window.addEventListener('load', function () {
     console.log("🚀 App iniciada");
     const scene = document.querySelector('a-scene');
 
-    // 🌟 OPTIMIZACIÓN 1: Caché del DOM. Buscamos el elemento de mensaje UNA sola vez
-    // y lo guardamos en la memoria para no gastar recursos buscándolo a cada rato.
-    const arMessageDOM = document.getElementById('arMessage');
-
     if (scene) {
+
 
         for (let i = 0; i <= 48; i++) {
             let datosPais = (typeof selecciones !== 'undefined' && selecciones[i]) ? selecciones[i] : null;
             let nombrePais = datosPais ? datosPais.pais.toUpperCase() : "EQUIPO " + i;
             let colorTexto = datosPais ? datosPais.colorPrincipal : "#FFFFFF";
 
-            // Aquí el modelo nace con visible="false" para ahorrar RAM (¡Bien hecho!)
             let targetHTML = `
     <a-entity mindar-image-target="targetIndex: ${i}">
        <a-text value="${nombrePais} DETECTADO" color="${colorTexto}" position="0 1 0" align="center" scale="1.5 1.5 1.5"></a-text>
@@ -484,32 +465,25 @@ window.addEventListener('load', function () {
         </a-gltf-model>
     </a-entity>
     `;
+            // ponemos el bloque dentro de la escena
             scene.insertAdjacentHTML('beforeend', targetHTML);
         }
 
+
         scene.addEventListener('mindar-image-ready', () => {
             console.log("✅ MindAR: El archivo .mind se cargó correctamente y el escáner está activo.");
-            if (arMessageDOM && arStarted) {
-                arMessageDOM.innerHTML = '✅ Cámara lista - Apunta a un escudo del Mundial';
-                arMessageDOM.style.background = 'rgba(0,0,0,0.7)';
+            const message = document.getElementById('arMessage');
+            if (message && arStarted) {
+                message.innerHTML = '✅ Cámara lista - Apunta a un escudo del Mundial';
+                message.style.background = 'rgba(0,0,0,0.7)';
             }
         });
 
+        // Ahora buscamos todos los targets
         const targets = document.querySelectorAll('[mindar-image-target]');
 
         targets.forEach((target) => {
-            // Busca el target.addEventListener('targetFound'...) y déjalo exactamente así:
             target.addEventListener('targetFound', () => {
-                
-                // Limpiaparabrisas: Apagamos TODOS los modelos primero
-                document.querySelectorAll('a-gltf-model').forEach(mod => mod.setAttribute('visible', 'false'));
-                
-                // Encendemos SOLO el modelo del escudo que acabamos de detectar
-                const modelo3D = target.querySelector('a-gltf-model');
-                if (modelo3D) {
-                    modelo3D.setAttribute('visible', 'true');
-                }
-
                 let indexDetectado = target.getAttribute('mindar-image-target').targetIndex;
                 let datosPais = (typeof selecciones !== 'undefined') ? selecciones[indexDetectado] : null;
                 let nombrePais = datosPais ? datosPais.pais : "Equipo Desconocido";
@@ -522,33 +496,25 @@ window.addEventListener('load', function () {
                     localStorage.setItem('albumMundial', JSON.stringify(escudosGuardados));
                 }
 
-                if (arMessageDOM) {
-                    arMessageDOM.innerHTML = '⚽ ¡' + nombrePais.toUpperCase() + ' DESBLOQUEADO! Guardando...';
-                    arMessageDOM.style.background = '#4CAF50';
-                    arMessageDOM.style.fontWeight = 'bold';
+                const message = document.getElementById('arMessage');
+                if (message) {
+                    message.innerHTML = '⚽ ¡' + nombrePais.toUpperCase() + ' DESBLOQUEADO! Guardando...';
+                    message.style.background = '#4CAF50';
+                    message.style.fontWeight = 'bold';
                 }
 
-                // EXORCISMO 3: Reiniciamos el reloj para no acumular redirecciones fantasma
-                if (timeoutGaleria) {
-                    clearTimeout(timeoutGaleria);
-                }
-                timeoutGaleria = setTimeout(() => {
+                setTimeout(() => {
                     showScreen('gallery');
                 }, 10000);
             });
 
             target.addEventListener('targetLost', () => {
-                // 🌟 OPTIMIZACIÓN 2B: Apagar el modelo para que la tarjeta gráfica (GPU) descanse
-                const modelo3D = target.querySelector('a-gltf-model');
-                if (modelo3D) {
-                    modelo3D.setAttribute('visible', 'false');
-                }
-
                 console.log("👀 Se perdió de vista la imagen.");
-                if (arMessageDOM) {
-                    arMessageDOM.innerHTML = '🔍 Buscando escudo del Mundial...';
-                    arMessageDOM.style.background = 'rgba(0,0,0,0.7)';
-                    arMessageDOM.style.fontWeight = 'normal';
+                const message = document.getElementById('arMessage');
+                if (message) {
+                    message.innerHTML = '🔍 Buscando escudo del Mundial...';
+                    message.style.background = 'rgba(0,0,0,0.7)';
+                    message.style.fontWeight = 'normal';
                 }
             });
         });
