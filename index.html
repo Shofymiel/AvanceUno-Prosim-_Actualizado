@@ -16,8 +16,8 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <style>
-@import url('https://fonts.googleapis.com/css2?family=Bpmf+Iansui&family=Fjalla+One&family=Gveret+Levin&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rock+Salt&display=swap');
-</style>
+        @import url('https://fonts.googleapis.com/css2?family=Bpmf+Iansui&family=Fjalla+One&family=Gveret+Levin&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rock+Salt&display=swap');
+    </style>
 
     <script>
         // Le enseñamos a A-Frame cómo cambiar texturas antes de que cargue la cámara
@@ -84,9 +84,11 @@
         <section id="camera" class="screen">
             <div class="ar-container">
 
+               
+                <!-- //AQUI HUBO CAMBIO RENDERER-->
                 <a-scene id="arScene"
                     mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
-                    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights"
+                    color-space="sRGB" renderer="antialias: false; precision: mediump;"
                     vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
 
                     <a-assets>
@@ -121,6 +123,7 @@
                     <button class="btn-efecto" onclick="efectoConfeti()">🎉</button>
                     <button class="btn-efecto" onclick="efectoFuegos()">🎆</button>
                     <button class="btn-efecto" onclick="efectoBurbujas()">🫧</button>
+                    <button class="control-btn" id="btn-animacion" onclick="toggleAnimacion()">⏸️</button>
                 </div>
 
                 <!-- Loading -->
@@ -186,8 +189,8 @@
 
         <section id="stats" class="screen">
             <div class="stats-container">
-                <h2 class="stats-main-title">📊 ESTADÍSTICAS DESTACADAS</h2>
-                <p class="stats-subtitle">Revisa los números de los partidos más importantes</p>
+                <h2 class="stats-main-title">📊 ESTADÍSTICAS PASADAS</h2>
+                <p class="stats-subtitle">Datos oficiales de las últimas ediciones de la Copa del Mundo</p>
 
                 <div class="matches-grid" id="matchesContainer">
                 </div>
@@ -197,24 +200,21 @@
         <section id="trivia" class="screen">
             <div class="trivia-container">
                 <h2 class="trivia-main-title">🇺🇸 TRIVIA MUNDIAL 2026 🇨🇦</h2>
-                <p class="trivia-subtitle">Pon a prueba tus conocimientos sobre los 42 equipos clasificados</p>
+                <p class="trivia-subtitle">Pon a prueba tus conocimientos con un desafío rápido de 5 preguntas
+                    aleatorias.</p>
 
-                <!-- Selector de equipos -->
-                <div class="team-selector">
-                    <label for="teamSelect">Elige un equipo:</label>
-                    <select id="teamSelect" class="team-dropdown">
-                        <option value="">-- Selecciona un país --</option>
-                        <!-- Los equipos se cargarán aquí desde JavaScript -->
-                    </select>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button id="btnGenerarTrivia"
+                        style="padding: 12px 24px; font-size: 1.1em; cursor: pointer; border-radius: 8px; border: none; background-color: #0055A4; color: white; font-weight: bold;">
+                        🎲 Generar 5 Preguntas
+                    </button>
                 </div>
 
-                <!-- Contenedor donde se mostrarán las preguntas del equipo seleccionado -->
                 <div id="triviaContent" class="trivia-content">
-                    <p style="text-align: center; color: #aaa; padding: 20px;">👆 Selecciona un equipo de la lista para
-                        comenzar.</p>
+                    <p style="text-align: center; color: #aaa; padding: 20px;">👆 Presiona el botón para comenzar tu
+                        desafío mundial.</p>
                 </div>
             </div>
-
         </section>
 
     </div>
