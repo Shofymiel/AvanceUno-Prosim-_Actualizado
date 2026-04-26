@@ -317,34 +317,44 @@
     };
 
     
-    function procesarFrame() {
-        if (videoSecreto.paused || videoSecreto.ended) {
-            animationId = requestAnimationFrame(procesarFrame);
-            return;
-        }
+    // Variables para el Freno de Mano (Limitar FPS)
+    let lastTime = 0;
+    const FPS_LIMIT = 24; // 24 cuadros por segundo es suficiente para video y salva el procesador
+    const delay = 1000 / FPS_LIMIT;
 
-        // 4.1 Dibujamos el video original en el lienzo
+    function procesarFrame(currentTime) {
+        // Pedimos el siguiente cuadro de inmediato para mantener el ciclo vivo
+        animationId = requestAnimationFrame(procesarFrame);
+
+        if (videoSecreto.paused || videoSecreto.ended) return;
+
+        // 🌟 OPTIMIZACIÓN 1: Frenamos a 24 FPS. Si no ha pasado el tiempo, abortamos el cálculo.
+        if (currentTime - lastTime < delay) return;
+        lastTime = currentTime;
+
+        // 🌟 OPTIMIZACIÓN 2: DOWNSAMPLING. 
+        // Bajamos la resolución matemática del canvas a la mitad (320x180).
+        // El navegador lo estirará visualmente, pero procesará 75% menos píxeles.
+        canvas.width = 320;
+        canvas.height = 180;
+
+        // Dibujamos el video en el lienzo
         ctx.drawImage(videoSecreto, 0, 0, canvas.width, canvas.height);
 
-        // 4.2 Obtenemos la matriz de píxeles
-        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
-        // 4.3 Aplicamos el filtro seleccionado
-        if (filtroActual === 'brillo') {
-            aplicarBrillo(imageData);
-        } else if (filtroActual === 'mosaico') {
-            aplicarMosaico(imageData);
-        } else if (filtroActual === 'aberracion') {
-            aplicarAberracion(imageData);
-        }
-
-        // 4.4 Regresamos los píxeles modificados al lienzo
+        // 🌟 OPTIMIZACIÓN 3: Solo calculamos matemáticas si hay un filtro puesto.
         if (filtroActual !== 'ninguno') {
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            if (filtroActual === 'brillo') {
+                aplicarBrillo(imageData);
+            } else if (filtroActual === 'mosaico') {
+                aplicarMosaico(imageData);
+            } else if (filtroActual === 'aberracion') {
+                aplicarAberracion(imageData);
+            }
+
             ctx.putImageData(imageData, 0, 0);
         }
-
-        // Llamamos al siguiente cuadro de video
-        animationId = requestAnimationFrame(procesarFrame);
     }
 
     function aplicarBrillo(imageData) {
