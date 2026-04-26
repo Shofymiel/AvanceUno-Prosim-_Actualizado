@@ -111,156 +111,156 @@
 
            {
             titulo: "Egipto",
-            url: "../videos/Videos_P2/Egipto.mp4", 
+            url: "videos/Egipto.mp4", 
             poster: "logos/16.png"
         },
 
         {
             titulo: "Escocia",
-            url: "../videos/Videos_P2/Escocia.mp4", 
+            url: "videos/Escocia.mp4", 
             poster: "logos/17.png"
         },
 
         
            {
             titulo: "España",
-            url: "../videos/Videos_P2/España.mp4", 
+            url: "videos/España.mp4", 
             poster: "logos/18.png"
         },
 
         {
             titulo: "Estados Unidos",
-            url: "../videos/Videos_P2/Estados Unidos.mp4", 
+            url: "videos/Estados Unidos.mp4", 
             poster: "logos/19.png"
         },
 
           {
             titulo: "Francia",
-            url: "../videos/Videos_P2/Francia.mp4", 
+            url: "videos/Francia.mp4", 
             poster: "logos/20.png"
         },
 
         {
             titulo: "Ghana",
-            url: "../videos/Videos_P2/Ghana.mp4", 
+            url: "videos/Ghana.mp4", 
             poster: "logos/21.png"
         },
 
         
            {
             titulo: "Haiti",
-            url: "../videos/Videos_P2/Haiti.mp4", 
+            url: "videos/Haiti.mp4", 
             poster: "logos/22.png"
         },
 
         {
             titulo: "Inglaterra",
-            url: "../videos/Videos_P2/Inglaterra.mp4", 
+            url: "videos/Inglaterra.mp4", 
             poster: "logos/23.png"
         },
 
           {
             titulo: "Iran",
-            url: "../videos/Videos_P2/Iran.mp4", 
+            url: "videos/Iran.mp4", 
             poster: "logos/24.png"
         },
 
         {
             titulo: "Japón",
-            url: "../videos/Videos_P2/Japón.mp4", 
+            url: "videos/Japón.mp4", 
             poster: "logos/25.png"
         },
 
         
            {
             titulo: "Jordania",
-            url: "../videos/Videos_P2/Jordania.mp4", 
+            url: "videos/Jordania.mp4", 
             poster: "logos/26.png"
         },
 
         {
             titulo: "México",
-            url: "../videos/Videos_P2/México.mp4", 
+            url: "videos/México.mp4", 
             poster: "logos/28.png"
         },
 
          {
             titulo: "Noruega",
-            url: "../videos/Videos_P2/Noruega.mp4", 
+            url: "videos/Noruega.mp4", 
             poster: "logos/30.png"
         },
 
           {
             titulo: "Nueva Zelanda",
-            url: "../videos/Videos_P2/Nueva Zelanda.mp4", 
+            url: "videos/Nueva Zelanda.mp4", 
             poster: "logos/31.png"
         },
 
         {
             titulo: "Paises Bajos",
-            url: "../videos/Videos_P2/Países Bajos.mp4", 
+            url: "videos/Países Bajos.mp4", 
             poster: "logos/32.png"
         },
 
         
            {
             titulo: "Panamá",
-            url: "../videos/Videos_P2/Panamá.mp4", 
+            url: "videos/Panamá.mp4", 
             poster: "logos/33.png"
         },
 
         {
             titulo: "Paraguay",
-            url: "../videos/Videos_P2/Paraguay.mp4", 
+            url: "videos/Paraguay.mp4", 
             poster: "logos/34.png"
         },
 
           {
             titulo: "Portugal",
-            url: "../videos/Videos_P3/Portugal.mp4", 
+            url: "videos/Portugal.mp4", 
             poster: "logos/35.png"
         },
 
         {
             titulo: "Qatar",
-            url: "../videos/Videos_P3/Qatar.mp4", 
+            url: "videos/Qatar.mp4", 
             poster: "logos/36.png"
         },
 
         
            {
             titulo: "Senegal",
-            url: "../videos/Videos_P3/Senegal.mp4", 
+            url: "videos/Senegal.mp4", 
             poster: "logos/37.png"
         },
 
         {
             titulo: "Sudáfrica",
-            url: "../videos/Videos_P3/Sudáfrica.mp4", 
+            url: "videos/Sudáfrica.mp4", 
             poster: "logos/38.png"
         },
 
            {
             titulo: "Suiza",
-            url: "../videos/Videos_P3/Suiza.mp4", 
+            url: "videos/Suiza.mp4", 
             poster: "logos/39.png"
         },
 
         {
             titulo: "Túnez",
-            url: "../videos/Videos_P3/Túnez.mp4", 
+            url: "videos/Túnez.mp4", 
             poster: "logos/40.png"
         },
 
            {
             titulo: "Uruguay",
-            url: "../videos/Videos_P3/Uruguay.mp4", 
+            url: "videos/Uruguay.mp4", 
             poster: "logos/41.png"
         },
 
         {
             titulo: "Uzbekistan",
-            url: "../videos/Videos_P3/Uzbekistan.mp4", 
+            url: "videos/Uzbekistan.mp4", 
             poster: "logos/42.png"
         },
 
