@@ -438,39 +438,31 @@ function restartAR() {
     setTimeout(() => { startAR(); }, 1000);
 }
 
+// VARIABLE GLOBAL para el temporizador
+let temporizadorGaleria = null;
+
 // EVENTOS DE LA CÁMARA
 window.addEventListener('load', function () {
     console.log("🚀 App iniciada");
     const scene = document.querySelector('a-scene');
 
     if (scene) {
-
-
+        // 1. CREAMOS LOS CONTENEDORES VACÍOS (¡Cero Chibis en la memoria!)
         for (let i = 0; i <= 48; i++) {
             let datosPais = (typeof selecciones !== 'undefined' && selecciones[i]) ? selecciones[i] : null;
             let nombrePais = datosPais ? datosPais.pais.toUpperCase() : "EQUIPO " + i;
             let colorTexto = datosPais ? datosPais.colorPrincipal : "#FFFFFF";
 
             let targetHTML = `
-    <a-entity mindar-image-target="targetIndex: ${i}">
-       <a-text value="${nombrePais} DETECTADO" color="${colorTexto}" position="0 1 0" align="center" scale="1.5 1.5 1.5"></a-text>
-        
-        <a-gltf-model 
-            src="#modelo3D" 
-            position="0 0 0" 
-            scale="5 5 5" 
-            animation-mixer="clip: Hi_Clip;"
-            cambiar-ropa="src: modelo3D/texturas/${i}.png;">
-        </a-gltf-model>
-    </a-entity>
-    `;
-            // ponemos el bloque dentro de la escena
+            <a-entity mindar-image-target="targetIndex: ${i}">
+               <a-text value="${nombrePais} DETECTADO" color="${colorTexto}" position="0 1 0" align="center" scale="1.5 1.5 1.5"></a-text>
+               </a-entity>
+            `;
             scene.insertAdjacentHTML('beforeend', targetHTML);
         }
 
-
         scene.addEventListener('mindar-image-ready', () => {
-            console.log("✅ MindAR: El archivo .mind se cargó correctamente y el escáner está activo.");
+            console.log("✅ MindAR: Escáner activo.");
             const message = document.getElementById('arMessage');
             if (message && arStarted) {
                 message.innerHTML = '✅ Cámara lista - Apunta a un escudo del Mundial';
@@ -478,15 +470,37 @@ window.addEventListener('load', function () {
             }
         });
 
-        // Ahora buscamos todos los targets
         const targets = document.querySelectorAll('[mindar-image-target]');
 
         targets.forEach((target) => {
             target.addEventListener('targetFound', () => {
                 let indexDetectado = target.getAttribute('mindar-image-target').targetIndex;
+
+                // 2. LIMPIAPARABRISAS: Apagamos los Chibis que ya existan para que no se amontonen
+                document.querySelectorAll('a-gltf-model').forEach(mod => mod.setAttribute('visible', 'false'));
+
+                // 3. CARGA PEREZOSA: ¿Ya habíamos creado el Chibi de este país?
+                let chibi = target.querySelector('a-gltf-model');
+                if (!chibi) {
+                    // Si no existe, lo creamos por primera y única vez, ahorrando 98% de memoria
+                    let chibiHTML = `
+                    <a-gltf-model 
+                        src="#modelo3D"
+                        position="0 0 0" 
+                        scale="5 5 5" 
+                        animation-mixer="clip: Hi_Clip;"
+                        cambiar-ropa="src: modelo3D/texturas/${indexDetectado}.png;">
+                    </a-gltf-model>`;
+                    target.insertAdjacentHTML('beforeend', chibiHTML);
+                    chibi = target.querySelector('a-gltf-model');
+                }
+                
+                // Lo hacemos visible
+                chibi.setAttribute('visible', 'true');
+
+                // --- TEXTOS Y GUARDADO DE DATOS ---
                 let datosPais = (typeof selecciones !== 'undefined') ? selecciones[indexDetectado] : null;
                 let nombrePais = datosPais ? datosPais.pais : "Equipo Desconocido";
-
                 console.log("🎯 ¡BINGO! Escudo detectado:", nombrePais);
 
                 let escudosGuardados = JSON.parse(localStorage.getItem('albumMundial')) || [];
@@ -502,13 +516,23 @@ window.addEventListener('load', function () {
                     message.style.fontWeight = 'bold';
                 }
 
-                setTimeout(() => {
+                // 4. TEMPORIZADOR SEGURO (Evita que la pantalla se trabe)
+                if (temporizadorGaleria) clearTimeout(temporizadorGaleria);
+                temporizadorGaleria = setTimeout(() => {
                     showScreen('gallery');
                 }, 10000);
             });
 
             target.addEventListener('targetLost', () => {
                 console.log("👀 Se perdió de vista la imagen.");
+                
+                // Si la cámara pierde el escudo, apagamos su Chibi
+                let chibi = target.querySelector('a-gltf-model');
+                if (chibi) chibi.setAttribute('visible', 'false');
+
+                // Cancelamos el viaje a la galería si quitas la cámara rápido
+                if (temporizadorGaleria) clearTimeout(temporizadorGaleria);
+
                 const message = document.getElementById('arMessage');
                 if (message) {
                     message.innerHTML = '🔍 Buscando escudo del Mundial...';
@@ -519,8 +543,7 @@ window.addEventListener('load', function () {
         });
 
         scene.addEventListener('mindar-image-error', (e) => {
-            console.error("❌ MindAR reportó un error durante el escaneo:", e.detail);
+            console.error("❌ MindAR reportó un error:", e.detail);
         });
     }
 });
-
