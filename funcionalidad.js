@@ -204,9 +204,6 @@ const pasosTutorial = [
         imagen: "./fotosGuia/Paso6.png",
     },
     {
-        imagen: "./fotosGuia/Paso62.png",
-    },
-    {
         imagen: "./fotosGuia/Paso8.png",
     },
     {
